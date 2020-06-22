@@ -24,6 +24,8 @@ public class UserServiceImpl implements IUserService {
 	@Autowired
 	private MongoTemplate mongoTemplate;
 	
+	private Query query = new Query();
+	
 	//***************
 
 	
@@ -39,8 +41,6 @@ public class UserServiceImpl implements IUserService {
 	@Override
 	@Transactional(readOnly = true)
 	public User geUserById(String userId) {
-		
-		Query query = new Query();
 		
 		query.addCriteria(Criteria.where("_id").is(userId));
 		
@@ -71,7 +71,6 @@ public class UserServiceImpl implements IUserService {
 	@Transactional(readOnly = true)
 	public Object getAllUserSettigns(String userId) {
 		
-		Query query = new Query();
 		query.addCriteria(Criteria.where("userId").is(userId));
 		
 		User user = mongoTemplate.findOne(query, User.class);
@@ -84,8 +83,6 @@ public class UserServiceImpl implements IUserService {
 	@Transactional(readOnly = true)
 	public Map<String, String> getUserSettigns(String userId, String key) {
 		
-		Query query = new Query();
-		
 		query.addCriteria(Criteria.where("userId").is(userId));
 		
 		return mongoTemplate.findOne(query, User.class).getUserSettings();
@@ -96,8 +93,6 @@ public class UserServiceImpl implements IUserService {
 	@Transactional
 	public String addUserSettings(String userId, String key, String value) {
 
-		Query query = new Query();
-		
 		query.addCriteria(Criteria.where("userId").is(userId));
 		
 		User user = mongoTemplate.findOne(query, User.class);
@@ -119,8 +114,6 @@ public class UserServiceImpl implements IUserService {
 	@Transactional
 	public String deleteById(String userId) {
 		
-		Query query = new Query();
-		
 		query.addCriteria(Criteria.where("_id").is(userId));
 		
 		if (mongoTemplate.find(query, User.class).size() != 0) {
@@ -136,22 +129,33 @@ public class UserServiceImpl implements IUserService {
 		//System.out.println(mongoTemplate.getDb().getName());
 	}
 
+	
+	//List of users by age range
 	@Override
 	public List<User> findUsersByAge(Integer ageIni, Integer ageEnd) {
-
-		return null;
+		
+		query.addCriteria(Criteria.where("age").exists(true)
+				.andOperator(
+				Criteria.where("age").lte(ageEnd),
+				Criteria.where("age").gte(ageIni)
+			)
+		);
+		
+		return mongoTemplate.find(query, User.class);
 	}
 
+	
+	//Finding Users by Position Pattern
 	@Override
 	public List<User> findUsersByPositionPatter(String pattern) {
+		
+		query.addCriteria(Criteria.where("position").is(true).regex(pattern));
 
-		return null;
+		return mongoTemplate.find(query, User.class);
 	}
 	
 	//Update User
 	public String updateUser(User user) {
-		
-		Query query = new Query();
 		
 		query.addCriteria(Criteria.where("_id").is(user.getUserId()));
 		

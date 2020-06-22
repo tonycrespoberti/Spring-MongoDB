@@ -1,5 +1,8 @@
 package com.cloud.mongodb.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,5 +53,18 @@ public class UserController {
 	public String updateUser(@RequestBody User user) {
 		
 		return userService.updateUser(user);
+	}
+	
+	@GetMapping(path = "/age/between/{init}/{end}")
+	public List<User> usersFilterByAge(@PathVariable Integer init, @PathVariable Integer end){
+		
+		return userService.findUsersByAge(init, end);
+		
+	}
+	
+	@GetMapping(path = "/users/positions/{coincidence}")
+	public List<User> usersFilterByPattern(@PathVariable String coincidence){
+		
+		return userService.findUsersByPositionPatter(coincidence);
 	}
 }
